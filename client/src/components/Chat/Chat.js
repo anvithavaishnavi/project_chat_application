@@ -21,19 +21,27 @@ const Chat = ({ location }) => {
   const [messages, setMessages] = useState([]);
 
   useEffect(() => {
-    const { name, room } = queryString.parse(location.search);
+  const { name, room } = queryString.parse(location.search);
 
-    socket = io(ENDPOINT);
+  socket = io(ENDPOINT);
 
-    setRoom(room);
-    setName(name)
+  setRoom(room);
+  setName(name);
 
-    socket.emit('join', { name, room }, (error) => {
-      if(error) {
-        alert(error);
-      }
-    });
-  }, [ENDPOINT, location.search]);
+  socket.emit('join', { name, room }, (error) => {
+    if (error) {
+      alert(error);
+    }
+  });
+
+  // cleanup on unmount
+  return () => {
+    if (socket) {
+      socket.disconnect();
+    }
+  };
+}, [location.search]);
+
   
   useEffect(() => {
     socket.on('message', message => {
